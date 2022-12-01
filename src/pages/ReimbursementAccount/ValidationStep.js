@@ -34,7 +34,7 @@ const propTypes = {
     ...withLocalizePropTypes,
 
     /** Bank account currently in setup */
-    reimbursementAccount: reimbursementAccountPropTypes,
+    reimbursementAccount: reimbursementAccountPropTypes.isRequired,
 
     /** User's account who is setting up bank account */
     account: PropTypes.shape({
@@ -45,11 +45,6 @@ const propTypes = {
 };
 
 const defaultProps = {
-    reimbursementAccount: {
-        errorFields: {},
-        errors: {},
-        maxAttemptsReached: false,
-    },
     account: {
         requiresTwoFactorAuth: false,
     },
@@ -247,9 +242,6 @@ ValidationStep.defaultProps = defaultProps;
 export default compose(
     withLocalize,
     withOnyx({
-        reimbursementAccount: {
-            key: ONYXKEYS.REIMBURSEMENT_ACCOUNT,
-        },
         account: {
             key: ONYXKEYS.ACCOUNT,
         },

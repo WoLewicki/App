@@ -41,6 +41,9 @@ const propTypes = {
     /** ACH data for the withdrawal account actively being set up */
     reimbursementAccount: reimbursementAccountPropTypes,
 
+    /** The token required to initialize the Onfido SDK */
+    onfidoToken: PropTypes.string,
+
     /** Information about the network  */
     network: networkPropTypes.isRequired,
 
@@ -65,7 +68,14 @@ const propTypes = {
 const defaultProps = {
     reimbursementAccount: {
         isLoading: true,
+        errorFields: {},
+        errors: {},
+        maxAttemptsReached: false,
+        achData: {
+            state: BankAccount.STATE.SETUP,
+        },
     },
+    onfidoToken: '',
     plaidLinkToken: '',
     route: {
         params: {
@@ -78,9 +88,10 @@ class ReimbursementAccountPage extends React.Component {
     constructor(props) {
         super(props);
         this.continue = this.continue.bind(this);
+        this.goBack = this.goBack.bind(this);
 
         const achData = lodashGet(this.props, 'reimbursementAccount.achData', {});
-        const hasInProgressVBBA = achData.bankAccountID && achData.state !== BankAccount.STATE.OPEN;
+        const hasInProgressVBBA = achData.bankAccountID && achData.state !== BankAccount.STATE.OPEN && achData.state !== BankAccount.STATE.LOCKED;
         this.state = {
             shouldShowContinueSetupButton: hasInProgressVBBA,
         };
@@ -176,6 +187,40 @@ class ReimbursementAccountPage extends React.Component {
         });
     }
 
+    goBack() {
+        const achData = lodashGet(this.props, 'reimbursementAccount.achData', {});
+        const currentStep = achData.currentStep || CONST.BANK_ACCOUNT.STEP.BANK_ACCOUNT;
+        const subStep = achData.subStep;
+        const shouldShowOnfido = achData.useOnfido && this.props.onfidoToken && !achData.isOnfidoSetupComplete;
+        const hasInProgressVBBA = achData.bankAccountID && achData.state !== BankAccount.STATE.OPEN && achData.state !== BankAccount.STATE.LOCKED;
+        switch (currentStep) {
+            case CONST.BANK_ACCOUNT.STEP.BANK_ACCOUNT:
+                if (hasInProgressVBBA) {
+                    this.setState({shouldShowContinueSetupButton: true});
+                } else if (subStep) {
+                    BankAccounts.setBankAccountSubStep(null);
+                } else {
+                    Navigation.goBack();
+                }
+                break;
+            case CONST.BANK_ACCOUNT.STEP.COMPANY:
+                BankAccounts.goToWithdrawalAccountSetupStep(CONST.BANK_ACCOUNT.STEP.BANK_ACCOUNT, {subStep: CONST.BANK_ACCOUNT.SUBSTEP.MANUAL});
+                break;
+            case CONST.BANK_ACCOUNT.STEP.REQUESTOR:
+                if (shouldShowOnfido) {
+                    BankAccounts.clearOnfidoToken();
+                } else {
+                    BankAccounts.goToWithdrawalAccountSetupStep(CONST.BANK_ACCOUNT.STEP.COMPANY);
+                }
+                break;
+            case CONST.BANK_ACCOUNT.STEP.ACH_CONTRACT:
+                BankAccounts.clearOnfidoToken();
+                BankAccounts.goToWithdrawalAccountSetupStep(CONST.BANK_ACCOUNT.STEP.REQUESTOR);
+                break;
+            default: Navigation.goBack();
+        }
+    }
+
     render() {
         // The SetupWithdrawalAccount flow allows us to continue the flow from various points depending on where the
         // user left off. This view will refer to the achData as the single source of truth to determine which route to
@@ -184,6 +229,8 @@ class ReimbursementAccountPage extends React.Component {
         // next step.
         const achData = lodashGet(this.props, 'reimbursementAccount.achData', {});
         const currentStep = achData.currentStep || CONST.BANK_ACCOUNT.STEP.BANK_ACCOUNT;
+        const shouldShowOnfido = achData.useOnfido && this.props.onfidoToken && !achData.isOnfidoSetupComplete;
+
         if (this.props.reimbursementAccount.isLoading) {
             const isSubmittingVerificationsData = _.contains([
                 CONST.BANK_ACCOUNT.STEP.COMPANY,
@@ -193,12 +240,20 @@ class ReimbursementAccountPage extends React.Component {
             return (
                 <ReimbursementAccountLoadingIndicator
                     isSubmittingVerificationsData={isSubmittingVerificationsData}
+                    onBackButtonPress={this.goBack}
                 />
             );
         }
 
-        const hasInProgressVBBA = achData.bankAccountID && achData.state !== BankAccount.STATE.OPEN;
-        if (hasInProgressVBBA && this.state.shouldShowContinueSetupButton) {
+        if (lodashGet(this.props.reimbursementAccount, 'shouldShowResetModal')) {
+            return (
+                <ScreenWrapper>
+                    <WorkspaceResetBankAccountModal />
+                </ScreenWrapper>
+            );
+        }
+
+        if (this.state.shouldShowContinueSetupButton) {
             return (
                 <ContinueBankAccountSetup
                     continue={this.continue}
@@ -239,33 +294,62 @@ class ReimbursementAccountPage extends React.Component {
                 </ScreenWrapper>
             );
         }
-        return (
-            <ScreenWrapper>
-                {currentStep === CONST.BANK_ACCOUNT.STEP.BANK_ACCOUNT && (
-                    <BankAccountStep
-                        receivedRedirectURI={getPlaidOAuthReceivedRedirectURI()}
-                        plaidLinkOAuthToken={this.props.plaidLinkToken}
-                        onSubStepBack={() => (hasInProgressVBBA ? this.setState({shouldShowContinueSetupButton: true}) : BankAccounts.setBankAccountSubStep(null))}
-                    />
-                )}
-                {currentStep === CONST.BANK_ACCOUNT.STEP.COMPANY && (
-                    <CompanyStep />
-                )}
-                {currentStep === CONST.BANK_ACCOUNT.STEP.REQUESTOR && (
-                    <RequestorStep />
-                )}
-                {currentStep === CONST.BANK_ACCOUNT.STEP.ACH_CONTRACT && (
-                    <ACHContractStep companyName={achData.companyName} />
-                )}
-                {currentStep === CONST.BANK_ACCOUNT.STEP.VALIDATION && (
-                    <ValidationStep />
-                )}
-                {currentStep === CONST.BANK_ACCOUNT.STEP.ENABLE && (
-                    <EnableStep />
-                )}
-                <WorkspaceResetBankAccountModal />
-            </ScreenWrapper>
-        );
+
+        if (currentStep === CONST.BANK_ACCOUNT.STEP.BANK_ACCOUNT) {
+            return (
+                <BankAccountStep
+                    reimbursementAccount={this.props.reimbursementAccount}
+                    receivedRedirectURI={getPlaidOAuthReceivedRedirectURI()}
+                    plaidLinkOAuthToken={this.props.plaidLinkToken}
+                    onBackButtonPress={this.goBack}
+                />
+            );
+        }
+
+        if (currentStep === CONST.BANK_ACCOUNT.STEP.COMPANY) {
+            return (
+                <CompanyStep
+                    reimbursementAccount={this.props.reimbursementAccount}
+                    onBackButtonPress={this.goBack}
+                />
+            );
+        }
+
+        if (currentStep === CONST.BANK_ACCOUNT.STEP.REQUESTOR) {
+            return (
+                <RequestorStep
+                    reimbursementAccount={this.props.reimbursementAccount}
+                    shouldShowOnfido={Boolean(shouldShowOnfido)}
+                    onBackButtonPress={this.goBack}
+                />
+            );
+        }
+
+        if (currentStep === CONST.BANK_ACCOUNT.STEP.ACH_CONTRACT) {
+            return (
+                <ACHContractStep
+                    reimbursementAccount={this.props.reimbursementAccount}
+                    companyName={achData.companyName}
+                    onBackButtonPress={this.goBack}
+                />
+            );
+        }
+
+        if (currentStep === CONST.BANK_ACCOUNT.STEP.VALIDATION) {
+            return (
+                <ValidationStep
+                    reimbursementAccount={this.props.reimbursementAccount}
+                />
+            );
+        }
+
+        if (currentStep === CONST.BANK_ACCOUNT.STEP.ENABLE) {
+            return (
+                <EnableStep
+                    reimbursementAccount={this.props.reimbursementAccount}
+                />
+            );
+        }
     }
 }
 
@@ -283,6 +367,9 @@ export default compose(
         },
         plaidLinkToken: {
             key: ONYXKEYS.PLAID_LINK_TOKEN,
+        },
+        onfidoToken: {
+            key: ONYXKEYS.ONFIDO_TOKEN,
         },
     }),
     withLocalize,

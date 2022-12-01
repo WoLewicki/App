@@ -44,7 +44,7 @@ const EnableStep = (props) => {
     const bankName = reimbursementAccount.addressName;
 
     return (
-        <View style={[styles.flex1, styles.justifyContentBetween]}>
+        <ScreenWrapper style={[styles.flex1, styles.justifyContentBetween]}>
             <HeaderWithCloseButton
                 title={props.translate('workspace.common.bankAccount')}
                 onCloseButtonPress={Navigation.dismissModal}
@@ -103,7 +103,7 @@ const EnableStep = (props) => {
                     </Text>
                 )}
             </ScrollView>
-        </View>
+        </ScreenWrapper>
     );
 };
 
@@ -113,9 +113,6 @@ EnableStep.propTypes = propTypes;
 export default compose(
     withLocalize,
     withOnyx({
-        reimbursementAccount: {
-            key: ONYXKEYS.REIMBURSEMENT_ACCOUNT,
-        },
         user: {
             key: ONYXKEYS.USER,
         },

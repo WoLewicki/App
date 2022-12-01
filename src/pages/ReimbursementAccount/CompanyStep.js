@@ -27,6 +27,7 @@ import * as ReimbursementAccountUtils from '../../libs/ReimbursementAccountUtils
 import reimbursementAccountPropTypes from './reimbursementAccountPropTypes';
 import reimbursementAccountDraftPropTypes from './ReimbursementAccountDraftPropTypes';
 import Form from '../../components/Form';
+import ScreenWrapper from '../../components/ScreenWrapper';
 
 const propTypes = {
     /** The bank account currently in setup */
@@ -36,6 +37,9 @@ const propTypes = {
     /** The draft values of the bank account being setup */
     /* eslint-disable-next-line react/no-unused-prop-types */
     reimbursementAccountDraft: reimbursementAccountDraftPropTypes.isRequired,
+
+    /** Goes to the previous step */
+    onBackButtonPress: PropTypes.func.isRequired,
 
     ...withLocalizePropTypes,
 };
@@ -139,14 +143,14 @@ class CompanyStep extends React.Component {
         const shouldDisableCompanyTaxID = bankAccountID && ReimbursementAccountUtils.getDefaultStateForField(this.props, 'companyTaxID');
 
         return (
-            <>
+            <ScreenWrapper>
                 <HeaderWithCloseButton
                     title={this.props.translate('companyStep.headerTitle')}
                     stepCounter={{step: 2, total: 5}}
                     shouldShowGetAssistanceButton
                     guidesCallTaskID={CONST.GUIDES_CALL_TASK_IDS.WORKSPACE_BANK_ACCOUNT}
                     shouldShowBackButton
-                    onBackButtonPress={() => BankAccounts.goToWithdrawalAccountSetupStep(CONST.BANK_ACCOUNT.STEP.BANK_ACCOUNT)}
+                    onBackButtonPress={this.props.onBackButtonPress}
                     onCloseButtonPress={Navigation.dismissModal}
                 />
                 <Form
@@ -251,7 +255,7 @@ class CompanyStep extends React.Component {
                         shouldSaveDraft
                     />
                 </Form>
-            </>
+            </ScreenWrapper>
         );
     }
 }
@@ -262,9 +266,6 @@ export default compose(
     withLocalize,
     withOnyx({
         // Needed to retrieve errorFields
-        reimbursementAccount: {
-            key: ONYXKEYS.REIMBURSEMENT_ACCOUNT,
-        },
         reimbursementAccountDraft: {
             key: ONYXKEYS.REIMBURSEMENT_ACCOUNT_DRAFT,
         },
