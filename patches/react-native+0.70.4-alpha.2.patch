@@ -40,3 +40,79 @@ index 67120d2..bd8febe 100644
              return mViewManagers;
            }
          }
+diff --git a/node_modules/react-native/ReactAndroid/src/main/java/com/facebook/react/views/modal/ModalHostHelper.java b/node_modules/@expensify/react-native/ReactAndroid/src/main/java/com/facebook/react/views/modal/ModalHostHelper.java
+index 3a226c0..14a7488 100644
+--- a/node_modules/react-native/ReactAndroid/src/main/java/com/facebook/react/views/modal/ModalHostHelper.java
++++ b/node_modules/react-native/ReactAndroid/src/main/java/com/facebook/react/views/modal/ModalHostHelper.java
+@@ -30,7 +30,7 @@ import com.facebook.infer.annotation.Assertions;
+    * getRotation because the 'natural' rotation will be portrait on phones and landscape on tablets.
+    * This should only be called on the native modules/shadow nodes thread.
+    */
+-  public static Point getModalHostSize(Context context) {
++public static Point getModalHostSize(Context context, boolean statusBarTranslucent) {
+     WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+     Display display = Assertions.assertNotNull(wm).getDefaultDisplay();
+     // getCurrentSizeRange will return the min and max width and height that the window can be
+@@ -48,7 +48,7 @@ import com.facebook.infer.annotation.Assertions;
+     Resources resources = context.getResources();
+     int statusBarId = resources.getIdentifier("status_bar_height", "dimen", "android");
+     int statusBarHeight = 0;
+-    if (windowFullscreen && statusBarId > 0) {
++    if ((windowFullscreen || statusBarTranslucent) && statusBarId > 0) {
+       statusBarHeight = (int) resources.getDimension(statusBarId);
+     }
+ 
+diff --git a/node_modules/react-native/ReactAndroid/src/main/java/com/facebook/react/views/modal/ModalHostShadowNode.java b/node_modules/@expensify/react-native/ReactAndroid/src/main/java/com/facebook/react/views/modal/ModalHostShadowNode.java
+index 7288fe0..587120e 100644
+--- a/node_modules/react-native/ReactAndroid/src/main/java/com/facebook/react/views/modal/ModalHostShadowNode.java
++++ b/node_modules/react-native/ReactAndroid/src/main/java/com/facebook/react/views/modal/ModalHostShadowNode.java
+@@ -10,6 +10,8 @@ package com.facebook.react.views.modal;
+ import android.graphics.Point;
+ import com.facebook.react.uimanager.LayoutShadowNode;
+ import com.facebook.react.uimanager.ReactShadowNodeImpl;
++import com.facebook.react.uimanager.UIManagerModule;
++import com.facebook.react.bridge.ReactContext;
+ 
+ /**
+  * We implement the Modal by using an Android Dialog. That will fill the entire window of the
+@@ -30,7 +32,11 @@ class ModalHostShadowNode extends LayoutShadowNode {
+   @Override
+   public void addChildAt(ReactShadowNodeImpl child, int i) {
+     super.addChildAt(child, i);
+-    Point modalSize = ModalHostHelper.getModalHostSize(getThemedContext());
++
++    UIManagerModule uiManager = ((ReactContext)getThemedContext()).getNativeModule(UIManagerModule.class);
++    ReactModalHostView modal = (ReactModalHostView)uiManager.resolveView(child.getReactTag());
++
++    Point modalSize = ModalHostHelper.getModalHostSize(getThemedContext(), modal.isStatusBarTranslucent());
+     child.setStyleWidth(modalSize.x);
+     child.setStyleHeight(modalSize.y);
+   }
+diff --git a/node_modules/react-native/ReactAndroid/src/main/java/com/facebook/react/views/modal/ReactModalHostManager.java b/node_modules/@expensify/react-native/ReactAndroid/src/main/java/com/facebook/react/views/modal/ReactModalHostManager.java
+index 15ce94c..d354aa0 100644
+--- a/node_modules/react-native/ReactAndroid/src/main/java/com/facebook/react/views/modal/ReactModalHostManager.java
++++ b/node_modules/react-native/ReactAndroid/src/main/java/com/facebook/react/views/modal/ReactModalHostManager.java
+@@ -168,7 +168,7 @@ public class ReactModalHostManager extends ViewGroupManager<ReactModalHostView>
+   public Object updateState(
+       ReactModalHostView view, ReactStylesDiffMap props, StateWrapper stateWrapper) {
+     view.getFabricViewStateManager().setStateWrapper(stateWrapper);
+-    Point modalSize = ModalHostHelper.getModalHostSize(view.getContext());
++    Point modalSize = ModalHostHelper.getModalHostSize(view.getContext(), view.isStatusBarTranslucent());
+     view.updateState(modalSize.x, modalSize.y);
+     return null;
+   }
+diff --git a/node_modules/react-native/ReactAndroid/src/main/java/com/facebook/react/views/modal/ReactModalHostView.java b/node_modules/@expensify/react-native/ReactAndroid/src/main/java/com/facebook/react/views/modal/ReactModalHostView.java
+index 2840de7..0777884 100644
+--- a/node_modules/react-native/ReactAndroid/src/main/java/com/facebook/react/views/modal/ReactModalHostView.java
++++ b/node_modules/react-native/ReactAndroid/src/main/java/com/facebook/react/views/modal/ReactModalHostView.java
+@@ -155,6 +155,10 @@ public class ReactModalHostView extends ViewGroup
+     return false;
+   }
+   
++  public boolean isStatusBarTranslucent() {
++    return mStatusBarTranslucent;
++  }
++
+   public void onDropInstance() {
+     ((ReactContext) getContext()).removeLifecycleEventListener(this);
+     dismiss();
