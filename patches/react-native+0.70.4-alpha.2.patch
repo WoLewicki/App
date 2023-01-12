@@ -253,9 +253,9 @@ index 66e3c6e..2a10c02 100644
 +
 +  {
 +    auto contentSize = jsi::Object(runtime);
-+      contentSize.setProperty(
++    contentSize.setProperty(
 +        runtime, "width", textInputMetrics.contentSize.width);
-+      contentSize.setProperty(
++    contentSize.setProperty(
 +        runtime, "height", textInputMetrics.contentSize.height);
 +    payload.setProperty(runtime, "contentSize", contentSize);
 +  }
