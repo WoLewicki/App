@@ -182,64 +182,24 @@ index 15ce94c..17c6782 100644
      return null;
    }
  
-diff --git a/node_modules/react-native/Libraries/Text/TextInput/Multiline/RCTUITextView.m b/node_modules/@expensify/react-native/Libraries/Text/TextInput/Multiline/RCTUITextView.m
-index 92371bc..667972e 100644
---- a/node_modules/react-native/Libraries/Text/TextInput/Multiline/RCTUITextView.m
-+++ b/node_modules/react-native/Libraries/Text/TextInput/Multiline/RCTUITextView.m
-@@ -19,6 +19,7 @@ @implementation RCTUITextView
-   UITextView *_detachedTextView;
-   RCTBackedTextViewDelegateAdapter *_textInputDelegateAdapter;
-   NSDictionary<NSAttributedStringKey, id> *_defaultTextAttributes;
-+  CGSize _lastContentSize;
- }
- 
- static UIFont *defaultPlaceholderFont()
-@@ -229,6 +230,11 @@ - (void)layoutSubviews
-   CGFloat placeholderHeight = [_placeholderView sizeThatFits:textFrame.size].height;
-   textFrame.size.height = MIN(placeholderHeight, textFrame.size.height);
-   _placeholderView.frame = textFrame;
-+
-+  if (!CGSizeEqualToSize(_lastContentSize, self.contentSize)) {
-+    _lastContentSize = self.contentSize;
-+    [_textInputDelegate textInputDidLayoutSubviews];
-+  }
- }
- 
- - (CGSize)intrinsicContentSize
-diff --git a/node_modules/react-native/Libraries/Text/TextInput/RCTBackedTextInputDelegate.h b/node_modules/@expensify/react-native/Libraries/Text/TextInput/RCTBackedTextInputDelegate.h
-index c2a4362..48456d5 100644
---- a/node_modules/react-native/Libraries/Text/TextInput/RCTBackedTextInputDelegate.h
-+++ b/node_modules/react-native/Libraries/Text/TextInput/RCTBackedTextInputDelegate.h
-@@ -37,6 +37,8 @@ NS_ASSUME_NONNULL_BEGIN
- 
- - (void)scrollViewDidScroll:(UIScrollView *)scrollView;
- 
-+- (void)textInputDidLayoutSubviews;
-+
- @end
- 
- NS_ASSUME_NONNULL_END
 diff --git a/node_modules/react-native/React/Fabric/Mounting/ComponentViews/TextInput/RCTTextInputComponentView.mm b/node_modules/@expensify/react-native/React/Fabric/Mounting/ComponentViews/TextInput/RCTTextInputComponentView.mm
-index 3631fb4..57d6181 100644
+index 3631fb4..c859dac 100644
 --- a/node_modules/react-native/React/Fabric/Mounting/ComponentViews/TextInput/RCTTextInputComponentView.mm
 +++ b/node_modules/react-native/React/Fabric/Mounting/ComponentViews/TextInput/RCTTextInputComponentView.mm
-@@ -391,6 +391,14 @@ - (void)textInputDidChange
-   }
- }
- 
-+- (void)textInputDidLayoutSubviews
-+{
+@@ -246,6 +246,11 @@ - (void)updateLayoutMetrics:(LayoutMetrics const &)layoutMetrics
+       UIEdgeInsetsInsetRect(self.bounds, RCTUIEdgeInsetsFromEdgeInsets(layoutMetrics.borderWidth));
+   _backedTextInputView.textContainerInset =
+       RCTUIEdgeInsetsFromEdgeInsets(layoutMetrics.contentInsets - layoutMetrics.borderWidth);
++
 +  if (_eventEmitter) {
 +    auto const &textInputEventEmitter = *std::static_pointer_cast<TextInputEventEmitter const>(_eventEmitter);
 +    textInputEventEmitter.onContentSizeChange([self _textInputMetrics]);
 +  }
-+}
-+
- - (void)textInputDidChangeSelection
- {
-   if (_comingFromJS) {
+ }
+ 
+ - (void)prepareForRecycle
 diff --git a/node_modules/react-native/ReactCommon/react/renderer/components/textinput/iostextinput/TextInputEventEmitter.cpp b/node_modules/@expensify/react-native/ReactCommon/react/renderer/components/textinput/iostextinput/TextInputEventEmitter.cpp
-index 66e3c6e..2a10c02 100644
+index 66e3c6e..91720e2 100644
 --- a/node_modules/react-native/ReactCommon/react/renderer/components/textinput/iostextinput/TextInputEventEmitter.cpp
 +++ b/node_modules/react-native/ReactCommon/react/renderer/components/textinput/iostextinput/TextInputEventEmitter.cpp
 @@ -37,6 +37,23 @@ static jsi::Value textInputMetricsPayload(
