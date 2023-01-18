@@ -22,6 +22,60 @@ index 84cbe8d..6318933 100644
    };
  
    auto p = sFabricComponentsClassMap.find(name);
+diff --git a/node_modules/react-native/React/Fabric/Mounting/ComponentViews/TextInput/RCTTextInputComponentView.mm b/node_modules/@expensify/react-native/React/Fabric/Mounting/ComponentViews/TextInput/RCTTextInputComponentView.mm
+index 3631fb4..ddfe790 100644
+--- a/node_modules/react-native/React/Fabric/Mounting/ComponentViews/TextInput/RCTTextInputComponentView.mm
++++ b/node_modules/react-native/React/Fabric/Mounting/ComponentViews/TextInput/RCTTextInputComponentView.mm
+@@ -116,6 +116,10 @@ - (void)updateProps:(Props::Shared const &)props oldProps:(Props::Shared const &
+     [self _setMultiline:newTextInputProps.traits.multiline];
+   }
+ 
++  if (newTextInputProps.traits.showSoftInputOnFocus != oldTextInputProps.traits.showSoftInputOnFocus) {
++    [self _setShowSoftInputOnFocus:newTextInputProps.traits.showSoftInputOnFocus];
++  }
++
+   if (newTextInputProps.traits.autocapitalizationType != oldTextInputProps.traits.autocapitalizationType) {
+     _backedTextInputView.autocapitalizationType =
+         RCTUITextAutocapitalizationTypeFromAutocapitalizationType(newTextInputProps.traits.autocapitalizationType);
+@@ -246,6 +250,11 @@ - (void)updateLayoutMetrics:(LayoutMetrics const &)layoutMetrics
+       UIEdgeInsetsInsetRect(self.bounds, RCTUIEdgeInsetsFromEdgeInsets(layoutMetrics.borderWidth));
+   _backedTextInputView.textContainerInset =
+       RCTUIEdgeInsetsFromEdgeInsets(layoutMetrics.contentInsets - layoutMetrics.borderWidth);
++
++  if (_eventEmitter) {
++    auto const &textInputEventEmitter = *std::static_pointer_cast<TextInputEventEmitter const>(_eventEmitter);
++    textInputEventEmitter.onContentSizeChange([self _textInputMetrics]);
++  }
+ }
+ 
+ - (void)prepareForRecycle
+@@ -608,6 +617,26 @@ - (void)_setMultiline:(BOOL)multiline
+   RCTCopyBackedTextInput(_backedTextInputView, backedTextInputView);
+   _backedTextInputView = backedTextInputView;
+   [self addSubview:_backedTextInputView];
++
++  auto const &currentTextInputProps = *std::static_pointer_cast<TextInputProps const>(_props);
++  [self _setShowSoftInputOnFocus:currentTextInputProps.traits.showSoftInputOnFocus];
++}
++
++- (void)_setShowSoftInputOnFocus:(BOOL)showSoftInputOnFocus
++{
++  if (showSoftInputOnFocus) {
++    // Resets to default keyboard.
++    _backedTextInputView.inputView = nil;
++
++    // Without the call to reloadInputViews, the keyboard will not change until the textInput field (the first
++    // responder) loses and regains focus.
++    if (_backedTextInputView.isFirstResponder) {
++      [_backedTextInputView reloadInputViews];
++    }
++  } else {
++    // Hides keyboard, but keeps blinking cursor.
++    _backedTextInputView.inputView = [UIView new];
++  }
+ }
+ 
+ - (BOOL)_textOf:(NSAttributedString *)newText equals:(NSAttributedString *)oldText
 diff --git a/node_modules/react-native/ReactAndroid/src/main/java/com/facebook/react/ReactInstanceManager.java b/node_modules/@expensify/react-native/ReactAndroid/src/main/java/com/facebook/react/ReactInstanceManager.java
 index 67120d2..bd8febe 100644
 --- a/node_modules/react-native/ReactAndroid/src/main/java/com/facebook/react/ReactInstanceManager.java
@@ -182,22 +236,6 @@ index 15ce94c..17c6782 100644
      return null;
    }
  
-diff --git a/node_modules/react-native/React/Fabric/Mounting/ComponentViews/TextInput/RCTTextInputComponentView.mm b/node_modules/@expensify/react-native/React/Fabric/Mounting/ComponentViews/TextInput/RCTTextInputComponentView.mm
-index 3631fb4..c859dac 100644
---- a/node_modules/react-native/React/Fabric/Mounting/ComponentViews/TextInput/RCTTextInputComponentView.mm
-+++ b/node_modules/react-native/React/Fabric/Mounting/ComponentViews/TextInput/RCTTextInputComponentView.mm
-@@ -246,6 +246,11 @@ - (void)updateLayoutMetrics:(LayoutMetrics const &)layoutMetrics
-       UIEdgeInsetsInsetRect(self.bounds, RCTUIEdgeInsetsFromEdgeInsets(layoutMetrics.borderWidth));
-   _backedTextInputView.textContainerInset =
-       RCTUIEdgeInsetsFromEdgeInsets(layoutMetrics.contentInsets - layoutMetrics.borderWidth);
-+
-+  if (_eventEmitter) {
-+    auto const &textInputEventEmitter = *std::static_pointer_cast<TextInputEventEmitter const>(_eventEmitter);
-+    textInputEventEmitter.onContentSizeChange([self _textInputMetrics]);
-+  }
- }
- 
- - (void)prepareForRecycle
 diff --git a/node_modules/react-native/ReactCommon/react/renderer/components/textinput/iostextinput/TextInputEventEmitter.cpp b/node_modules/@expensify/react-native/ReactCommon/react/renderer/components/textinput/iostextinput/TextInputEventEmitter.cpp
 index 66e3c6e..91720e2 100644
 --- a/node_modules/react-native/ReactCommon/react/renderer/components/textinput/iostextinput/TextInputEventEmitter.cpp
@@ -269,3 +307,33 @@ index a872f5f..36bed3c 100644
  };
  
  } // namespace react
+diff --git a/node_modules/react-native/ReactCommon/react/renderer/components/textinput/iostextinput/TextInputProps.cpp b/node_modules/@expensify/react-native/ReactCommon/react/renderer/components/textinput/iostextinput/TextInputProps.cpp
+index 96d4d0c..75ce7b0 100644
+--- a/node_modules/react-native/ReactCommon/react/renderer/components/textinput/iostextinput/TextInputProps.cpp
++++ b/node_modules/react-native/ReactCommon/react/renderer/components/textinput/iostextinput/TextInputProps.cpp
+@@ -51,6 +51,12 @@ TextInputProps::TextInputProps(
+           "maxLength",
+           sourceProps.maxLength,
+           {})),
++      showSoftInputOnFocus(convertRawProp(
++          context,
++          rawProps,
++          "showSoftInputOnFocus",
++          sourceProps.showSoftInputOnFocus,
++          {})),
+       cursorColor(convertRawProp(
+           context,
+           rawProps,
+diff --git a/node_modules/react-native/ReactCommon/react/renderer/components/textinput/iostextinput/TextInputProps.h b/node_modules/@expensify/react-native/ReactCommon/react/renderer/components/textinput/iostextinput/TextInputProps.h
+index bede745..5f158ae 100644
+--- a/node_modules/react-native/ReactCommon/react/renderer/components/textinput/iostextinput/TextInputProps.h
++++ b/node_modules/react-native/ReactCommon/react/renderer/components/textinput/iostextinput/TextInputProps.h
+@@ -49,6 +49,8 @@ class TextInputProps final : public ViewProps, public BaseTextProps {
+ 
+   int maxLength{};
+ 
++  bool showSoftInputOnFocus{true};
++
+   /*
+    * Tint colors
+    */
