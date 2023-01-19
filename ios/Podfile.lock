@@ -877,7 +877,13 @@ PODS:
   - RNDateTimePicker (3.5.2):
     - React-Core
   - RNFastImage (8.6.3):
-    - React-Core
+    - RCT-Folly
+    - RCTRequired
+    - RCTTypeSafety
+    - React
+    - React-Codegen
+    - React-RCTFabric
+    - ReactCommon/turbomodule/core
     - SDWebImage (~> 5.11.1)
     - SDWebImageWebPCoder (~> 0.8.4)
   - RNFBAnalytics (12.9.3):
@@ -895,7 +901,7 @@ PODS:
     - Firebase/Performance (= 8.8.0)
     - React-Core
     - RNFBApp
-  - RNGestureHandler (2.6.0):
+  - RNGestureHandler (2.8.0):
     - RCT-Folly
     - RCTRequired
     - RCTTypeSafety
@@ -907,7 +913,7 @@ PODS:
     - React-Core
   - RNReactNativeHapticFeedback (1.14.0):
     - React-Core
-  - RNReanimated (3.0.0-rc.6):
+  - RNReanimated (3.0.0-rc.7):
     - DoubleConversion
     - FBLazyVector
     - FBReactNativeSpec
@@ -936,7 +942,7 @@ PODS:
     - React-RCTText
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNScreens (3.17.0):
+  - RNScreens (3.18.2):
     - RCT-Folly
     - RCTRequired
     - RCTTypeSafety
@@ -944,8 +950,8 @@ PODS:
     - React-Codegen
     - React-RCTFabric
     - ReactCommon/turbomodule/core
-    - RNScreens/common (= 3.17.0)
-  - RNScreens/common (3.17.0):
+    - RNScreens/common (= 3.18.2)
+  - RNScreens/common (3.18.2):
     - RCT-Folly
     - RCTRequired
     - RCTTypeSafety
@@ -1329,16 +1335,16 @@ SPEC CHECKSUMS:
   RNCClipboard: 41d8d918092ae8e676f18adada19104fa3e68495
   RNCPicker: d7db5fb87007968ac14bd2266f96be30f8d738d6
   RNDateTimePicker: 7658208086d86d09e1627b5c34ba0cf237c60140
-  RNFastImage: 5c9c9fed9c076e521b3f509fe79e790418a544e8
+  RNFastImage: fdf8c03d43026a4af81e15e483e457d8b60067c6
   RNFBAnalytics: f76bfa164ac235b00505deb9fc1776634056898c
   RNFBApp: 729c0666395b1953198dc4a1ec6deb8fbe1c302e
   RNFBCrashlytics: 2061ca863e8e2fa1aae9b12477d7dfa8e88ca0f9
   RNFBPerf: 389914cda4000fe0d996a752532a591132cbf3f9
-  RNGestureHandler: 182b4e135cc4fec4988687e2f123e302dc6b4b71
+  RNGestureHandler: ceea17b82fea276bb0743a28b53a394a6edf5b18
   RNPermissions: dcdb7b99796bbeda6975a6e79ad519c41b251b1c
   RNReactNativeHapticFeedback: 1e3efeca9628ff9876ee7cdd9edec1b336913f8c
-  RNReanimated: a23ea403a08cbbdf94f3341547fff502fc416bf7
-  RNScreens: e2cd04caa74748a6e42609a7b84f76c71d70a6ee
+  RNReanimated: 0e6700bdca5bc9b5cabd9defb551378cefca21cc
+  RNScreens: 208223c783496e6d0aa92ffdf307f61d58756fc1
   RNSVG: ceb279d4596db61f9b7e8b26015db7bc1f0edb4b
   SDWebImage: a7f831e1a65eb5e285e3fb046a23fcfbf08e696d
   SDWebImageWebPCoder: 908b83b6adda48effe7667cd2b7f78c897e5111d
