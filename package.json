@@ -92,7 +92,7 @@
     "react-native-collapsible": "^1.6.0",
     "react-native-config": "^1.4.5",
     "react-native-document-picker": "^8.0.0",
-    "react-native-fast-image": "github:WoLewicki/react-native-fast-image#8a92d576acf21bd9d27a3f0e0f9b9b3b1c3208a5",
+    "react-native-fast-image": "github:WoLewicki/react-native-fast-image#47dcf84733925e15e6a66153f5dd41ab697b57a3",
     "react-native-gesture-handler": "2.8.0",
     "react-native-google-places-autocomplete": "git+https://github.com/Expensify/react-native-google-places-autocomplete.git#3bbd17d63e6c38d38d857b50f6037c1c0376ff06",
     "react-native-haptic-feedback": "^1.13.0",
