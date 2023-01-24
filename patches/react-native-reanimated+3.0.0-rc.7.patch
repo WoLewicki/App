@@ -34,3 +34,15 @@ index 01bd931..9421ba9 100644
  export class NativeReanimated {
    constructor() {
      let native = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
+diff --git a/node_modules/react-native-reanimated/scripts/reanimated_utils.rb b/node_modules/react-native-reanimated/scripts/reanimated_utils.rb
+index 1b20c7e..7fd028c 100644
+--- a/node_modules/react-native-reanimated/scripts/reanimated_utils.rb
++++ b/node_modules/react-native-reanimated/scripts/reanimated_utils.rb
+@@ -1,6 +1,6 @@
+ def try_to_parse_react_native_package_json(node_modules_dir)
+   react_native_package_json_path = File.join(node_modules_dir, 'react-native/package.json')
+-  if !File.exists?(react_native_package_json_path)
++  if !File.exist?(react_native_package_json_path)
+     return nil
+   end
+   return JSON.parse(File.read(react_native_package_json_path))
