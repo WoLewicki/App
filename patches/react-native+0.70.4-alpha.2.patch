@@ -236,6 +236,26 @@ index 15ce94c..17c6782 100644
      return null;
    }
  
+diff --git a/node_modules/react-native/ReactCommon/react/renderer/components/textinput/androidtextinput/react/renderer/components/androidtextinput/AndroidTextInputShadowNode.cpp b/node_modules/@expensify/react-native/ReactCommon/react/renderer/components/textinput/androidtextinput/react/renderer/components/androidtextinput/AndroidTextInputShadowNode.cpp
+index fa497f2..0327ac0 100644
+--- a/node_modules/react-native/ReactCommon/react/renderer/components/textinput/androidtextinput/react/renderer/components/androidtextinput/AndroidTextInputShadowNode.cpp
++++ b/node_modules/react-native/ReactCommon/react/renderer/components/textinput/androidtextinput/react/renderer/components/androidtextinput/AndroidTextInputShadowNode.cpp
+@@ -170,15 +170,6 @@ void AndroidTextInputShadowNode::updateStateIfNeeded() {
+ Size AndroidTextInputShadowNode::measureContent(
+     LayoutContext const &layoutContext,
+     LayoutConstraints const &layoutConstraints) const {
+-  if (getStateData().cachedAttributedStringId != 0) {
+-    return textLayoutManager_
+-        ->measureCachedSpannableById(
+-            getStateData().cachedAttributedStringId,
+-            getConcreteProps().paragraphAttributes,
+-            layoutConstraints)
+-        .size;
+-  }
+-
+   // Layout is called right after measure.
+   // Measure is marked as `const`, and `layout` is not; so State can be updated
+   // during layout, but not during `measure`. If State is out-of-date in layout,
 diff --git a/node_modules/react-native/ReactCommon/react/renderer/components/textinput/iostextinput/TextInputEventEmitter.cpp b/node_modules/@expensify/react-native/ReactCommon/react/renderer/components/textinput/iostextinput/TextInputEventEmitter.cpp
 index 66e3c6e..91720e2 100644
 --- a/node_modules/react-native/ReactCommon/react/renderer/components/textinput/iostextinput/TextInputEventEmitter.cpp
