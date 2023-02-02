@@ -51,7 +51,7 @@
     "@onfido/react-native-sdk": "7.0.1",
     "@react-native-async-storage/async-storage": "^1.17.10",
     "@react-native-community/cameraroll": "git+https://github.com/react-native-cameraroll/react-native-cameraroll.git#3f0aed96db68e134f199171c7b06c1b4d6cb382b",
-    "@react-native-community/clipboard": "^1.5.1",
+    "@react-native-clipboard/clipboard": "git+https://github.com/j-piasecki/react-native-clipboard.git#6377e106140124a24b0648c42d91d976dbbbdf26",
     "@react-native-community/datetimepicker": "^3.5.2",
     "@react-native-community/netinfo": "^8.3.0",
     "@react-native-community/progress-bar-android": "^1.0.4",
