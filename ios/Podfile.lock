@@ -862,7 +862,13 @@ PODS:
     - React-logger (= 0.70.4-alpha.2)
     - React-perflogger (= 0.70.4-alpha.2)
   - RNCAsyncStorage (1.17.11):
-    - React-Core
+    - RCT-Folly
+    - RCTRequired
+    - RCTTypeSafety
+    - React
+    - React-Codegen
+    - React-RCTFabric
+    - ReactCommon/turbomodule/core
   - RNCClipboard (1.11.1):
     - RCT-Folly
     - RCTRequired
@@ -1337,7 +1343,7 @@ SPEC CHECKSUMS:
   React-rncore: 04d6465cf37550cb017c49521a7f285643606dc5
   React-runtimeexecutor: a8cee6fe3fb7994f07b735c7024a08a4fa5f8446
   ReactCommon: 1ebf2df5c764ebb52048e7a1cf42c75a6246171a
-  RNCAsyncStorage: 8616bd5a58af409453ea4e1b246521bb76578d60
+  RNCAsyncStorage: 927a20d65fa373b82cdb26c28828e888d603798a
   RNCClipboard: 472660b493222f5b351439c03e1874caafc5471e
   RNCPicker: d7db5fb87007968ac14bd2266f96be30f8d738d6
   RNDateTimePicker: 7658208086d86d09e1627b5c34ba0cf237c60140
