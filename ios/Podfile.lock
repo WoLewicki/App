@@ -720,10 +720,22 @@ PODS:
   - React-jsinspector (0.70.4-alpha.2)
   - React-logger (0.70.4-alpha.2):
     - glog
-  - react-native-blob-util (0.16.2):
+  - react-native-blob-util (0.17.1):
+    - RCT-Folly
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Codegen
     - React-Core
-  - react-native-cameraroll (4.1.2):
-    - React-Core
+    - React-RCTFabric
+    - ReactCommon/turbomodule/core
+  - react-native-cameraroll (5.2.3):
+    - RCT-Folly
+    - RCTRequired
+    - RCTTypeSafety
+    - React
+    - React-Codegen
+    - React-RCTFabric
+    - ReactCommon/turbomodule/core
   - react-native-config (1.4.6):
     - react-native-config/App (= 1.4.6)
   - react-native-config/App (1.4.6):
@@ -1040,7 +1052,7 @@ DEPENDENCIES:
   - React-jsinspector (from `../node_modules/react-native/ReactCommon/jsinspector`)
   - React-logger (from `../node_modules/react-native/ReactCommon/logger`)
   - react-native-blob-util (from `../node_modules/react-native-blob-util`)
-  - "react-native-cameraroll (from `../node_modules/@react-native-community/cameraroll`)"
+  - "react-native-cameraroll (from `../node_modules/@react-native-cameraroll/cameraroll`)"
   - react-native-config (from `../node_modules/react-native-config`)
   - react-native-document-picker (from `../node_modules/react-native-document-picker`)
   - "react-native-image-manipulator (from `../node_modules/@oguzhnatly/react-native-image-manipulator`)"
@@ -1172,7 +1184,7 @@ EXTERNAL SOURCES:
   react-native-blob-util:
     :path: "../node_modules/react-native-blob-util"
   react-native-cameraroll:
-    :path: "../node_modules/@react-native-community/cameraroll"
+    :path: "../node_modules/@react-native-cameraroll/cameraroll"
   react-native-config:
     :path: "../node_modules/react-native-config"
   react-native-document-picker:
@@ -1313,8 +1325,8 @@ SPEC CHECKSUMS:
   React-jsiexecutor: 523e742f144a346f7df32dea4fe1944d39b02473
   React-jsinspector: 7b02a02b9b9bf830102394039c80b3bf2e0200b0
   React-logger: b2c47bb0829c3c45ba3a04add9a2b4aea3f3dd4e
-  react-native-blob-util: c3b0faecd2919db568e9d552084396f3e50b57c7
-  react-native-cameraroll: 2957f2bce63ae896a848fbe0d5352c1bd4d20866
+  react-native-blob-util: 14ee09f33abf13a1afdfbc777bbdca09c816022c
+  react-native-cameraroll: 3ed0e9b71089d9e9936a35dd6d7b10afc258ac62
   react-native-config: 7cd105e71d903104e8919261480858940a6b9c0e
   react-native-document-picker: f68191637788994baed5f57d12994aa32cf8bf88
   react-native-image-manipulator: c48f64221cfcd46e9eec53619c4c0374f3328a56
