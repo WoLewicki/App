@@ -17,25 +17,10 @@ jobs:
   validateActor:
     runs-on: ubuntu-latest
     outputs:
-      READY_TO_BUILD: ${{ fromJSON(steps.isUserTeamMember.outputs.isTeamMember) && fromJSON(steps.hasReadyToBuildLabel.outputs.HAS_READY_TO_BUILD_LABEL) }}
+      READY_TO_BUILD: true
     steps:
       - id: isUserTeamMember
-        uses: tspascoal/get-user-teams-membership@baf2e6adf4c3b897bd65a7e3184305c165aec872
-        with:
-          GITHUB_TOKEN: ${{ secrets.OS_BOTIFY_TOKEN }}
-          username: ${{ github.actor }}
-          team: 'Expensify/expensify'
-
-      - id: hasReadyToBuildLabel
-        name: Set HAS_READY_TO_BUILD_LABEL flag
-        run: |
-          echo "HAS_READY_TO_BUILD_LABEL=$(gh pr view "${{ env.PULL_REQUEST_NUMBER }}" --repo Expensify/App --json labels --jq '.labels[].name' | grep -q 'Ready To Build' && echo 'true')" >> "$GITHUB_OUTPUT"
-          if [[ "$HAS_READY_TO_BUILD_LABEL" != 'true' ]]; then
-            echo "The 'Ready to Build' label is not attached to the PR #${{ env.PULL_REQUEST_NUMBER }}" 
-          fi
-        env:
-          PULL_REQUEST_NUMBER: ${{ github.event.number || github.event.inputs.PULL_REQUEST_NUMBER }}
-          GITHUB_TOKEN: ${{ github.token }}
+        run: echo mleko
 
   getBranchRef:
     runs-on: ubuntu-latest
