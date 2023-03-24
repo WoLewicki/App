@@ -56,7 +56,7 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha || needs.getBranchRef.outputs.REF }}
 
-      - uses: Expensify/App/.github/actions/composite/setupNode@main
+      - uses: Expensify/App/.github/actions/composite/setupNode@fabric-copy-3
 
       - uses: ruby/setup-ruby@eae47962baca661befdfd24e4d6c34ade04858f7
         with:
